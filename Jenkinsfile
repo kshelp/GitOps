@@ -10,14 +10,14 @@ pipeline {
     }
     stage('k8s deploy') {
       steps {
-        // Jenkins Credentials (kubeconfigId: 'kubeconfig')를 사용하여 kubeconfig 파일을 임시로 생성합니다.
-        // 이렇게 하면 kubeconfig 내용이 로그에 직접 노출되지 않고 안전하게 사용될 수 있습니다.
-        withCredentials([kubeconfigFile(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+        // 'kubeconfig'라는 ID로 등록된 kubeconfig Credentials를 사용합니다.
+        // 이 스텝은 KUBECONFIG 환경 변수를 자동으로 설정해 줍니다.
+        // Kubeconfig Credentials 등록 시 Kind는 "Kubernetes configuration (kubeconfig)"으로 설정되어야 합니다.
+        withKubeConfig(credentialsId: 'kubeconfig') { // <-- 'kubeconfigFile' 대신 'withKubeConfig' 사용
           sh '''
+            # KUBECONFIG 환경 변수는 이미 withKubeConfig 스텝에 의해 설정되어 있습니다.
             # 현재 작업 디렉토리의 모든 .yaml 파일을 kubectl apply합니다.
-            # KUBECONFIG 환경 변수를 설정하여 kubectl이 올바른 kubeconfig 파일을 사용하도록 합니다.
-            # -f . 옵션은 현재 디렉토리의 모든 YAML 파일을 찾아서 적용합니다.
-            KUBECONFIG=${KUBECONFIG_FILE} kubectl apply -f .
+            kubectl apply -f .
           '''
         }
       }
