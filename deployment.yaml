@@ -15,5 +15,5 @@ spec:
         app: gitops-nginx
     spec:
       containers:
-      - image: nginx
+      - image: 192.168.127.131:32000/nginx
         name: nginx
